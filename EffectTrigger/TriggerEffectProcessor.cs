@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using Trigger.Enum;
 using Vortice.Direct2D1;
 using YukkuriMovieMaker.Commons;
@@ -15,7 +16,9 @@ namespace Trigger
         ID2D1Image? input;
         ID2D1Image? output;
 
+        private readonly Random random = new();
         int? triggerFrame = null;
+        private bool triggerHit;
         readonly List<(IVideoEffect effect, IVideoEffectProcessor processor)> chain = [];
 
         public ID2D1Image Output => output ?? input ?? throw new NullReferenceException("No valid output image");
@@ -70,6 +73,7 @@ namespace Trigger
 
             var resetFrame = item.ResetFrame;
             var slider1 = item.GetSlider1Value(frame, length, fps);
+            var probability = item.Probability.GetValue(frame, length, fps);
 
             float target = item.Enum_IfMode switch
             {
@@ -85,9 +89,27 @@ namespace Trigger
                 _ => throw new ArgumentOutOfRangeException(nameof(effectDescription), effectDescription, null)
             };
 
-            if (item.Enum_SignMode.Compare(target, (float)slider1))
+            bool condition = item.Enum_SignMode.Compare(target, (float)slider1);
+
+            if (condition)
             {
-                triggerFrame ??= frame;
+                if (triggerFrame == null)
+                {
+                    triggerFrame = frame;
+
+                    float r = PseudoRandom01(frame);
+
+                    triggerHit =
+                        probability >= 100 ||
+                        (probability > 0 && r * 100f < probability);
+                }
+
+                if (!triggerHit)
+                {
+                    output = input;
+                    return desc;
+                }
+
                 int relFrame = Math.Max(0, frame - (resetFrame ? triggerFrame.Value : 0));
 
                 EffectDescription chainEffectDescription = new(
@@ -124,10 +146,24 @@ namespace Trigger
             else
             {
                 triggerFrame = null;
+                triggerHit = false;
                 output = input;
                 return desc;
             }
         }
+
+        private static float PseudoRandom01(int seed)
+        {
+            unchecked
+            {
+                uint x = (uint)seed;
+                x ^= x << 13;
+                x ^= x >> 17;
+                x ^= x << 5;
+                return (x & 0x00FFFFFF) / 16777216f; // 0.0 ～ 1.0
+            }
+        }
+
 
         public void SetInput(ID2D1Image? input)
         {

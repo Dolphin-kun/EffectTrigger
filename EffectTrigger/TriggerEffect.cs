@@ -10,7 +10,7 @@ using YukkuriMovieMaker.Plugin.Effects;
 
 namespace Trigger
 {
-    [VideoEffect("エフェクトトリガー", ["描画"], ["Effect Trigger","エフェクト トリガー"], isAviUtlSupported: false)]
+    [VideoEffect("エフェクトトリガー", ["描画"], ["Effect Trigger", "エフェクト トリガー"], isAviUtlSupported: false)]
     internal class TriggerEffect : VideoEffectBase
     {
         public override string Label => "エフェクトトリガー";
@@ -53,6 +53,11 @@ namespace Trigger
         public bool ResetFrame { get => resetFrame; set => Set(ref resetFrame, value); }
         bool resetFrame = true;
 
+        [Display(GroupName = "条件", Name = "確率", Description = "確率")]
+        [AnimationSlider("F1", "%", 0, 100)]
+        public Animation Probability { get; } = new(0, 0, 100);
+
+
         [Display(GroupName = "実行エフェクト", Name = "", Description = "")]
         [VideoEffectSelector(PropertyEditorSize = PropertyEditorSize.FullWidth)]
         public ImmutableList<IVideoEffect> Effects { get => effects; set => Set(ref effects, value); }
@@ -68,7 +73,7 @@ namespace Trigger
             return new TriggerEffectProcessor(devices, this);
         }
 
-        protected override IEnumerable<IAnimatable> GetAnimatables() => [..Effects, ..ModesPx, ..ModesOpacityPercentage, ..ModesZoomPercentage, ..ModesAngle];
+        protected override IEnumerable<IAnimatable> GetAnimatables() => [Probability, .. Effects, .. ModesPx, .. ModesOpacityPercentage, .. ModesZoomPercentage, .. ModesAngle];
 
         public override async ValueTask EndEditAsync()
         {
@@ -114,7 +119,7 @@ namespace Trigger
             }
 
             var val = GetSlider1Value(0, 1, 60);
-            DescriptionText = Enum_SignMode.ToDisplayString(Enum_IfMode,val);
+            DescriptionText = Enum_SignMode.ToDisplayString(Enum_IfMode, val);
         }
 
         public double GetSlider1Value(int frame, int length, int fps)
