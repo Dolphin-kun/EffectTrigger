@@ -4,7 +4,7 @@ using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Views.Converters;
 
 
-namespace Trigger.Display
+namespace EffectTrigger.Display
 {
     internal class DisplayControlAttribute : PropertyEditorAttribute2
     {
@@ -16,7 +16,7 @@ namespace Trigger.Display
         public override void SetBindings(FrameworkElement control, ItemProperty[] itemProperties)
         {
             var editor = (DisplayControl)control;
-            editor.SetBinding(DisplayControl.ValueProperty, ItemPropertiesBinding.Create(itemProperties));
+            editor.SetBinding(DisplayControl.ValueProperty, ItemPropertiesBinding.Create2(itemProperties));
         }
 
         public override void ClearBindings(FrameworkElement control)

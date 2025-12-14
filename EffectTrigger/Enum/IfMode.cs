@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Trigger.Enum
+namespace EffectTrigger.Enum
 {
     public enum IfMode
     {

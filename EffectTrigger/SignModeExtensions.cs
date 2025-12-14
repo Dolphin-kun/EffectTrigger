@@ -1,6 +1,6 @@
-﻿using Trigger.Enum;
+﻿using EffectTrigger.Enum;
 
-namespace Trigger
+namespace EffectTrigger
 {
     public static class SignModeExtensions
     {

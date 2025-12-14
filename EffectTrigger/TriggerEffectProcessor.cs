@@ -1,12 +1,11 @@
-﻿using System;
+﻿using EffectTrigger.Enum;
 using System.Collections.Immutable;
-using Trigger.Enum;
 using Vortice.Direct2D1;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Player.Video;
 using YukkuriMovieMaker.Plugin.Effects;
 
-namespace Trigger
+namespace EffectTrigger
 {
     internal class TriggerEffectProcessor : IVideoEffectProcessor
     {
@@ -16,7 +15,6 @@ namespace Trigger
         ID2D1Image? input;
         ID2D1Image? output;
 
-        private readonly Random random = new();
         int? triggerFrame = null;
         private bool triggerHit;
         readonly List<(IVideoEffect effect, IVideoEffectProcessor processor)> chain = [];
@@ -80,17 +78,16 @@ namespace Trigger
                 IfMode.X => desc.Draw.X,
                 IfMode.Y => desc.Draw.Y,
                 IfMode.Z => desc.Draw.Z,
-                IfMode.Opacity => (float)desc.Opacity,
-                IfMode.ZoomX => desc.Zoom.X,
-                IfMode.ZoomY => desc.Zoom.Y,
+                IfMode.Opacity => (float)desc.Opacity * 100f,
+                IfMode.ZoomX => desc.Zoom.X * 100f,
+                IfMode.ZoomY => desc.Zoom.Y * 100f,
                 IfMode.RotationX => desc.Rotation.X,
                 IfMode.RotationY => desc.Rotation.Y,
                 IfMode.RotationZ => desc.Rotation.Z,
                 _ => throw new ArgumentOutOfRangeException(nameof(effectDescription), effectDescription, null)
             };
-
+            
             bool condition = item.Enum_SignMode.Compare(target, (float)slider1);
-
             if (condition)
             {
                 if (triggerFrame == null)

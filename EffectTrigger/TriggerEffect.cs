@@ -1,14 +1,14 @@
-﻿using System.Collections.Immutable;
+﻿using EffectTrigger.Display;
+using EffectTrigger.Enum;
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using Trigger.Display;
-using Trigger.Enum;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Controls;
 using YukkuriMovieMaker.Exo;
 using YukkuriMovieMaker.Player.Video;
 using YukkuriMovieMaker.Plugin.Effects;
 
-namespace Trigger
+namespace EffectTrigger
 {
     [VideoEffect("エフェクトトリガー", ["描画"], ["Effect Trigger", "エフェクト トリガー"], isAviUtlSupported: false)]
     internal class TriggerEffect : VideoEffectBase
@@ -55,7 +55,7 @@ namespace Trigger
 
         [Display(GroupName = "条件", Name = "確率", Description = "確率")]
         [AnimationSlider("F1", "%", 0, 100)]
-        public Animation Probability { get; } = new(0, 0, 100);
+        public Animation Probability { get; } = new(100, 0, 100);
 
 
         [Display(GroupName = "実行エフェクト", Name = "", Description = "")]

@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using YukkuriMovieMaker.Commons;
 
-namespace Trigger.Display
+namespace EffectTrigger.Display
 {
     public partial class DisplayControl : UserControl,IPropertyEditorControl
     {
