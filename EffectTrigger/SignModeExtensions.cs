@@ -4,7 +4,7 @@ namespace EffectTrigger
 {
     public static class SignModeExtensions
     {
-        public static bool Compare(this SignMode mode, float a, float b)
+        public static bool Compare(this SignMode mode, float a, float b, float c)
         {
             return mode switch
             {
@@ -14,12 +14,13 @@ namespace EffectTrigger
                 SignMode.LessThan => a < b,
                 SignMode.GreaterThanOrEqual => a >= b,
                 SignMode.LessThanOrEqual => a <= b,
+                SignMode.Range => a >= b && a <= c,
                 _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
             };
         }
 
 
-        public static string ToDisplayString(this SignMode signMode, IfMode ifMode, double value)
+        public static string ToDisplayString(this SignMode signMode, IfMode ifMode, double value, double max)
         {
             string propName = ifMode switch
             {
@@ -54,6 +55,7 @@ namespace EffectTrigger
                 SignMode.LessThan => $"が {valueWithUnit} より小さいとき",
                 SignMode.GreaterThanOrEqual => $"が {valueWithUnit} 以上のとき",
                 SignMode.LessThanOrEqual => $"が {valueWithUnit} 以下のとき",
+                SignMode.Range => $"が {valueWithUnit} 以上 {max}{unit} 以下のとき",
                 _ => ""
             };
 

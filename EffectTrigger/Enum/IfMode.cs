@@ -15,7 +15,7 @@ namespace EffectTrigger.Enum
         [Display(Name = "拡大率X", Description = "拡大率（横方向）")]
         ZoomX = 5,
         [Display(Name = "拡大率Y", Description = "拡大率（縦方向）")]
-        ZoomY =6 ,
+        ZoomY = 6,
         [Display(Name = "回転角X", Description = "縦方向、X軸に対する回転角")]
         RotationX = 7,
         [Display(Name = "回転角Y", Description = "横方向、Y軸に対する回転角")]

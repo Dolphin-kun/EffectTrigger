@@ -1,8 +1,10 @@
 ﻿using EffectTrigger.Enum;
 using System.Collections.Immutable;
+using System.Numerics;
 using Vortice.Direct2D1;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Player.Video;
+using YukkuriMovieMaker.Plugin;
 using YukkuriMovieMaker.Plugin.Effects;
 
 namespace EffectTrigger
@@ -18,6 +20,10 @@ namespace EffectTrigger
         int? triggerFrame = null;
         private bool triggerHit;
         readonly List<(IVideoEffect effect, IVideoEffectProcessor processor)> chain = [];
+
+        string imagePath = "";
+        IImageFileSource? imageSource;
+        ID2D1CommandList? imageCommandList;
 
         public ID2D1Image Output => output ?? input ?? throw new NullReferenceException("No valid output image");
 
@@ -71,6 +77,7 @@ namespace EffectTrigger
 
             var resetFrame = item.ResetFrame;
             var slider1 = item.GetSlider1Value(frame, length, fps);
+            var slider2 = item.GetSlider2Value(frame, length, fps);
             var probability = item.Probability.GetValue(frame, length, fps);
 
             float target = item.Enum_IfMode switch
@@ -86,15 +93,16 @@ namespace EffectTrigger
                 IfMode.RotationZ => desc.Rotation.Z,
                 _ => throw new ArgumentOutOfRangeException(nameof(effectDescription), effectDescription, null)
             };
-            
-            bool condition = item.Enum_SignMode.Compare(target, (float)slider1);
+
+            bool condition = item.Enum_SignMode.Compare(target, (float)slider1, (float)slider2);
             if (condition)
             {
                 if (triggerFrame == null)
                 {
                     triggerFrame = frame;
 
-                    float r = PseudoRandom01(frame);
+                    int seed = frame * 31 + effectDescription.InputIndex * 101;
+                    float r = PseudoRandom01(seed);
 
                     triggerHit =
                         probability >= 100 ||
@@ -124,8 +132,9 @@ namespace EffectTrigger
 
 
                 UpdateChain(item.Effects);
+                UpdateImage();
 
-                ID2D1Image? current = input;
+                ID2D1Image? current = imageCommandList ?? input;
 
 
                 foreach (var (effect, processor) in chain)
@@ -149,6 +158,40 @@ namespace EffectTrigger
             }
         }
 
+        private void UpdateImage()
+        {
+            if (imagePath == item.ImagePath)
+                return;
+
+            imagePath = item.ImagePath;
+            DisposeImage();
+
+            if (string.IsNullOrEmpty(imagePath))
+                return;
+
+            imageSource = ImageFileSourceFactory.Create(devices, imagePath);
+            if (imageSource is null)
+                return;
+
+            var dc = devices.DeviceContext;
+            imageCommandList = dc.CreateCommandList();
+            dc.Target = imageCommandList;
+            dc.BeginDraw();
+            var size = imageSource.Output.Size;
+            dc.DrawImage(imageSource.Output, new Vector2((int)(-size.Width / 2), (int)(-size.Height / 2)));
+            dc.EndDraw();
+            dc.Target = null;
+            imageCommandList.Close();
+        }
+
+        private void DisposeImage()
+        {
+            imageCommandList?.Dispose();
+            imageCommandList = null;
+            imageSource?.Dispose();
+            imageSource = null;
+        }
+
         private static float PseudoRandom01(int seed)
         {
             unchecked
@@ -157,7 +200,7 @@ namespace EffectTrigger
                 x ^= x << 13;
                 x ^= x >> 17;
                 x ^= x << 5;
-                return (x & 0x00FFFFFF) / 16777216f; // 0.0 ～ 1.0
+                return (x & 0x00FFFFFF) / 16777216f;
             }
         }
 
@@ -186,6 +229,7 @@ namespace EffectTrigger
                 processor.Dispose();
             }
             chain.Clear();
+            DisposeImage();
         }
     }
 }

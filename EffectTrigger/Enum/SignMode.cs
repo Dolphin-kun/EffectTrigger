@@ -21,5 +21,8 @@ namespace EffectTrigger.Enum
 
         [Display(Name = "≤", Description = "AがB以下")]
         LessThanOrEqual = 6,
+
+        [Display(Name = "範囲", Description = "AがB以上C以下")]
+        Range,
     }
 }

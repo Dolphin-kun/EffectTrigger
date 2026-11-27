@@ -15,8 +15,8 @@ namespace EffectTrigger.Display
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register(nameof(Value), typeof(string), typeof(DisplayControl), new PropertyMetadata(string.Empty));
 
-        public event EventHandler? BeginEdit;
-        public event EventHandler? EndEdit;
+        public event EventHandler? BeginEdit { add { } remove { } }
+        public event EventHandler? EndEdit { add { } remove { } }
 
         public DisplayControl()
         {
